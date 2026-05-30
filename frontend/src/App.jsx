@@ -15,8 +15,8 @@ import {
 } from "lucide-react";
 
 const BACKEND_URL = import.meta.env.PROD
-  ? "https://documind-backend-qm5b.onrender.com/"
-  : "http://127.0.0.1:80000";
+  ? "https://documind-backend-qm5b.onrender.com"
+  : "http://127.0.0.1:8000";
 
 function App() {
   const [sessionId] = useState(
