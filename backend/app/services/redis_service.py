@@ -18,5 +18,17 @@ class RedisService:
             return self.client.ping()
         except redis.ConnectionError: 
             return False
+    
+    def get_cache(self, key: str) -> str: 
+        return self.client.get(key)
+
+    def set_cache(self, key: str, value: str, ttl: int = 300): 
+        self.client.set(key, value, ex=ttl)
+
+    def invalidate_response_cache(self): 
+        r = self.client
+        keys = r.keys("cache:response:*")
+        if keys: 
+            r.delete(*keys)
 
 redis_service = RedisService()

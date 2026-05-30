@@ -1,6 +1,7 @@
 # pyrefly: ignore [missing-import]
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException 
 from app.services.rag_service import rag_service
+from app.services.redis_service import redis_service
 from typing import List
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel
@@ -32,6 +33,8 @@ async def upload_document(
     #Read size for response metadata
     size_bytes = os.path.getsize(file_path)
 
+    #Clear the response cache since the document knowledge base has updated 
+    redis_service.invalidate_response_cache()
     
     return DocumentMetaData(
         filename=file.filename,
