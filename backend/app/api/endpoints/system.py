@@ -1,4 +1,6 @@
 # pyrefly: ignore [missing-import]
+from app.services.redis_service import redis_service
+# pyrefly: ignore [missing-import]
 from fastapi import APIRouter
 # pyrefly: ignore [missing-import]
 from pydantic import BaseModel
@@ -13,6 +15,8 @@ class SystemStats(BaseModel):
 
 @router.get("/stats", response_model=SystemStats)
 async def get_system_stats():
+    is_connected = redis_service.ping()
+    
     return SystemStats(
         redis_connected=True,
         cache_hit_ratio=0.75,

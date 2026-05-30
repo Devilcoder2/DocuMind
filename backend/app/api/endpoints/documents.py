@@ -19,7 +19,7 @@ async def upload_document(
     chunk_overlap: int = Form(50)
 ): 
     if not file.filename.endswith(('.pdf', '.txt', '.md')): 
-        raise HTTPException(status_code=400, details="Unsupported file format.")
+        raise HTTPException(status_code=400, detail="Unsupported file format.")
     
     return DocumentMetaData(
         filename=file.filename,

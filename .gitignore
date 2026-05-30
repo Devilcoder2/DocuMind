@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments (highly important!)
+venv/
+.venv/
+env/
+
+# Sensitive Environment Variables (Never commit API keys!)
+.env
+
+# Vector database local storage (prevent committing database indexes)
+chroma_db/
+backend/chroma_db/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
