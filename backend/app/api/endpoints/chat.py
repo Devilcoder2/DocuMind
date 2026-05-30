@@ -1,4 +1,6 @@
 # pyrefly: ignore [missing-import]
+from app.services.rag_service import rag_service
+import time
 from app.core.memory import RedisChatMemory
 from app.api.dependencies import rate_limit
 # pyrefly: ignore [missing-import]
@@ -31,20 +33,29 @@ class ChatResponse(BaseModel):
 @router.post("/", response_model=ChatResponse, dependencies=[Depends(rate_limit)])
 async def chat_interaction(request: ChatRequest): 
     memory = RedisChatMemory(session_id=request.session_id)
+
+    #Fetch recent chat history 
+    chat_history = memory.get_messages()
+
+    start_time = time.time()
+
+    #Query RAG Engine 
+    answer, citations = rag_service.query(
+        question=request.question,
+        rag_mode=request.rag_mode,
+        top_k=request.top_k,
+        chat_history=chat_history
+    )
+
+    latency_ms = (time.time() - start_time) * 1000
+
+    #Save history to redis 
     memory.add_message("user", request.question)
-
-    answer_text = f"This is a placeholder response for: '{request.question}'"
-
-    memory.add_message("assistant", answer_text)
-
-
-    mock_citations = [
-        Citation(filename="sample_redis_docs.pdf", text_chunk="Redis holds dataset in memory.", similarity_score=0.92)
-    ]
+    memory.add_message("assistant", answer)
 
     return ChatResponse(
-        answer=f"This is a placeholder response for: '{request.question}'",
-        citations=mock_citations,
-        latency_ms=45.2,
+        answer=answer,
+        citations=[Citation(**c) for c in citations],
+        latency_ms=round(latency_ms, 2),
         cached=False
     )

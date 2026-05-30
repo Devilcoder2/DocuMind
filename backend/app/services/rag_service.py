@@ -9,7 +9,7 @@ from langchain_community.document_loaders import PyPDFLoader, TextLoader
 # pyrefly: ignore [missing-import]
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 # pyrefly: ignore [missing-import]
-from langchain_google_genai import GoogleGenAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 # pyrefly: ignore [missing-import]
 from langchain_community.vectorstores import Chroma
 # pyrefly: ignore [missing-import]
@@ -29,13 +29,13 @@ class RAGService:
 
         os.makedirs(self.upload_dir, exist_ok=True)
 
-        self.embeddings = GoogleGenAIEmbeddings(
-            model="models/text_embedding-004",
+        self.embeddings = GoogleGenerativeAIEmbeddings(
+            model="models/gemini-embedding-001",
             google_api_key=settings.GEMINI_API_KEY
         )
 
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             temperature=0.2,
             google_api_key=settings.GEMINI_API_KEY
         )
@@ -75,7 +75,7 @@ class RAGService:
         #Step-03: Embed & Store the chunks 
         vectorstore = Chroma.from_documents(
             documents = chunks, 
-            embeddings = self.embeddings, 
+            embedding = self.embeddings, 
             persist_directory = self.persist_directory
         )
             
@@ -102,7 +102,7 @@ class RAGService:
         all_docs = vectorstore.get()
         documents = [
             Document(page_content=text, metadata=meta)
-            for text, meta in zip(all_docs["documents"], all_docs["metadata"])
+            for text, meta in zip(all_docs["documents"], all_docs["metadatas"])
         ]
 
         if not documents: 
@@ -116,7 +116,7 @@ class RAGService:
 
         if rag_mode == "hybrid":
             hybrid_retriever = EnsembleRetriever(
-                retrivers = [semantic_retriever, bm25_retriever],
+                retrievers = [semantic_retriever, bm25_retriever],
                 weights = [0.5,0.5]
             )
 
