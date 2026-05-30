@@ -22,9 +22,9 @@ graph TD
     
     subgraph Retrieval Pipeline
         Query["User Query"] --> ModeCheck{"Search Mode?"}
-        ModeCheck -- Semantic RAG --► ChromaRetriever["Vector Similarity (k=Top-K)"]
-        ModeCheck -- Vectorless RAG --► BM25Retriever["BM25 Lexical Keyword Search"]
-        ModeCheck -- Hybrid RAG --► Ensemble["LangChain EnsembleRetriever (50/50 Weighted Fusion)"]
+        ModeCheck -- Semantic RAG --> ChromaRetriever["Vector Similarity (k=Top-K)"]
+        ModeCheck -- Vectorless RAG --> BM25Retriever["BM25 Lexical Keyword Search"]
+        ModeCheck -- Hybrid RAG --> Ensemble["LangChain EnsembleRetriever (50/50 Weighted Fusion)"]
         
         ChromaRetriever --> Context["Context Assembly"]
         BM25Retriever --> Context
