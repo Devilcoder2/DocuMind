@@ -1,8 +1,10 @@
+from typing import Optional
 import os 
 import time
 from typing import List, Dict, Any, Tuple
 # pyrefly: ignore [missing-import]
 from fastapi import UploadFile
+import json
 
 # pyrefly: ignore [missing-import]
 from langchain_community.document_loaders import PyPDFLoader, TextLoader 
@@ -25,6 +27,7 @@ from app.config import settings
 class RAGService: 
     def __init__(self): 
         self.persist_directory = "chroma_db"
+        self.cache_directory = "chroma_cache"
         self.upload_dir = "uploads"
 
         os.makedirs(self.upload_dir, exist_ok=True)
@@ -178,6 +181,88 @@ class RAGService:
         response = chain.invoke({"question": question})
 
         return response.content, citations
+    
+    def check_semantic_cache(self, question: str, threshold: float = 0.18) -> Tuple[bool, Optional[str], List[Dict[str, Any]]]:
+        """
+        Searches the semantic cache vector database for a highly similar question.
+        Returns: Tuple of (is_cache_hit, cached_answer_text, cached_citations_list)
+        """
+    
+        if not os.path.exists(self.cache_directory): 
+            return False, None, []
+
+        try: 
+            cache_db = Chroma(
+                persist_directory=self.cache_directory,
+                embedding_function=self.embeddings
+            )
+
+            results = cache_db.similarity_search_with_score(question, k=1)
+
+            if results: 
+                doc, score = results[0]
+                print(f"DEBUG: Semantic cache nearest match distance: {score:.4f} for question: '{doc.page_content}'")
+
+                if score <= threshold: 
+                    cached_json = doc.metadata.get("cached_data")
+                    if cached_json: 
+                        cached_data = json.loads(cached_json)
+                        return True, cached_data["answer"], cached_data["citations"]
+        
+        except Exception as e: 
+            print(f"Error checking semantic cache: {e}")
+
+        return False, None, []
+
+    def set_semantic_cache(self, question: str, answer: str, citations: List[Dict[str, Any]]): 
+        """Stores a question, its answer, and citations in the semantic cache database."""
+        try: 
+            cached_data = {
+                "answer": answer,
+                "citations": citations
+            }
+            serialized_data = json.dumps(cached_data)
+
+            doc = Document(
+                page_content=question,
+                metadata={"cached_data": serialized_data}
+            )
+
+            # Check if the cache database has already been initialized on disk
+            # We check for the 'chroma.sqlite3' file which indicates a healthy Chroma database
+            sqlite_path = os.path.join(self.cache_directory, "chroma.sqlite3")
+            
+            if os.path.exists(sqlite_path):
+                # Append to the existing cache database (safe and non-blocking)
+                cache_db = Chroma(
+                    persist_directory=self.cache_directory,
+                    embedding_function=self.embeddings
+                )
+                cache_db.add_documents([doc])
+                print(f"DEBUG: Appended question to semantic cache: '{question}'")
+            else:
+                # First time initialization
+                Chroma.from_documents(
+                    documents=[doc],
+                    embedding=self.embeddings,
+                    persist_directory=self.cache_directory
+                )
+                print(f"DEBUG: Initialized semantic cache database with question: '{question}'")
+        
+        except Exception as e: 
+            print(f"Error writing to semantic cache: {e}")
+
+
+    def invalidate_semantic_cache(self): 
+        """Wipes the semantic cache directory to clear all stale queries."""
+        import shutil
+        if os.path.exists(self.cache_directory): 
+            try: 
+                shutil.rmtree(self.cache_directory)
+                print("DEBUG: Semantic Cache successfully invalidated (wiped).")
+            except Exception as e: 
+                print(f"Error invalidating semantic cache folder: {e}")
+
 
 rag_service = RAGService()
 

@@ -33,8 +33,9 @@ async def upload_document(
     #Read size for response metadata
     size_bytes = os.path.getsize(file_path)
 
-    #Clear the response cache since the document knowledge base has updated 
-    redis_service.invalidate_response_cache()
+    #Clear the cache since the document knowledge base has updated 
+    rag_service.invalidate_semantic_cache()
+
     
     return DocumentMetaData(
         filename=file.filename,
