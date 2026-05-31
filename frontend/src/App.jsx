@@ -12,13 +12,22 @@ import {
   CheckCircle,
   HelpCircle,
   HardDrive,
+  Play,
+  Sparkles,
+  Zap,
+  Clock,
+  ShieldAlert,
+  Terminal,
+  Globe,
 } from "lucide-react";
+
 
 const BACKEND_URL = import.meta.env.PROD
   ? "https://documind-backend-qm5b.onrender.com"
   : "http://127.0.0.1:8000";
 
 function App() {
+  const [view, setView] = useState("home");
   const [sessionId] = useState(
     () => `session_${Math.random().toString(36).substring(2, 9)}`,
   );
@@ -189,6 +198,240 @@ function App() {
       setIsSending(false);
     }
   };
+
+  if (view === "home") {
+    return (
+      <div className="home-container">
+        <header className="home-header">
+          <div className="brand" style={{ borderBottom: "none", paddingBottom: 0 }}>
+            <Cpu className="icon-glow" size={32} />
+            <span style={{ fontSize: "1.75rem" }}>DocuMind</span>
+          </div>
+          <div className="social-links">
+            <a
+              href="https://github.com/Devilcoder2/DocuMind"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-btn"
+            >
+              <svg
+                stroke="currentColor"
+                fill="currentColor"
+                strokeWidth="0"
+                viewBox="0 0 24 24"
+                height="16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+              </svg>
+              <span>GitHub</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/ramandeep-singh-3b6560249/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-btn"
+            >
+              <svg
+                stroke="currentColor"
+                fill="currentColor"
+                strokeWidth="0"
+                viewBox="0 0 24 24"
+                height="16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+              </svg>
+              <span>LinkedIn</span>
+            </a>
+          </div>
+        </header>
+
+        <section className="hero-section">
+          <div className="hero-glow"></div>
+          <h1 className="hero-title">DocuMind</h1>
+          <p className="hero-subtitle">
+            A production-grade Document Search & Hybrid RAG Engine powered by Google Gemini,
+            FastAPI, and Serverless Redis. Upload files, customize retrieval rules, and explore citations with sub-millisecond semantic caching.
+          </p>
+          <button className="launch-btn" onClick={() => setView("app")}>
+            <span>Launch RAG Console</span>
+            <Play size={18} fill="currentColor" />
+          </button>
+        </section>
+
+        <h2 className="grid-title">Architectural Features</h2>
+        <div className="feature-grid">
+          <div className="card-item">
+            <div className="card-header-icon color-cyan">
+              <Sparkles size={24} />
+            </div>
+            <h4>Hybrid Search (RRF)</h4>
+            <p>
+              Fuses dense vector representations (ChromaDB + Gemini Embeddings) with sparse keyword indices (Rank-BM25) via a custom weighted Ensemble re-ranking strategy.
+            </p>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon">
+              <Zap size={24} />
+            </div>
+            <h4>Semantic Vector Cache</h4>
+            <p>
+              Custom vector-based caching that maps query intent under a mathematical similarity distance threshold. Reduces redundant LLM search latencies to under 1 millisecond.
+            </p>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon color-purple">
+              <MessageSquare size={24} />
+            </div>
+            <h4>Stateful Redis Memory</h4>
+            <p>
+              Maintains isolated chat sessions mapped as Redis Lists directly on Upstash Serverless Redis. Features automatic 2-hour rolling session cache expiration.
+            </p>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon color-emerald">
+              <ShieldAlert size={24} />
+            </div>
+            <h4>Distributed Rate Limiting</h4>
+            <p>
+              Secures backend API routes and LLM contexts using client-IP rate counters inside Upstash Redis. Capped at 10 requests per minute with active 429 notifications.
+            </p>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon">
+              <RefreshCw size={24} />
+            </div>
+            <h4>Active Invalidation</h4>
+            <p>
+              Automates background response cache cleanups whenever a new document is ingested. Keeps LLM context strictly current and prevents silent document hallucinations.
+            </p>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon color-cyan">
+              <Settings size={24} />
+            </div>
+            <h4>Granular Console Controls</h4>
+            <p>
+              Enables real-time modification of document ingestion chunk sizes, overlaps, top-K chunk retrieval, and retrieval algorithms directly from the workspace dashboard.
+            </p>
+          </div>
+        </div>
+
+        <h2 className="grid-title">The Tech Stack</h2>
+        <div className="tech-grid">
+          <div className="card-item">
+            <div className="card-header-icon color-cyan">
+              <Globe size={24} />
+            </div>
+            <h4>React & Vite Frontend</h4>
+            <p>
+              Ultra-responsive SPA structured with gorgeous dark glassmorphism styling, polling status controllers, and visual citations explorer.
+            </p>
+            <div className="tech-tag-container">
+              <span className="tech-tag">Vite</span>
+              <span className="tech-tag">React 19</span>
+              <span className="tech-tag">Glassmorphic CSS</span>
+              <span className="tech-tag">Lucide Icons</span>
+            </div>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon">
+              <Terminal size={24} />
+            </div>
+            <h4>FastAPI Gateway</h4>
+            <p>
+              Asynchronous ASGI Python gateway handling upload routing, Pydantic schemas validation, dynamic cache invalidations, and system statistics logs.
+            </p>
+            <div className="tech-tag-container">
+              <span className="tech-tag">Python 3.12</span>
+              <span className="tech-tag">FastAPI</span>
+              <span className="tech-tag">Pydantic v2</span>
+              <span className="tech-tag">Uvicorn</span>
+            </div>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon color-purple">
+              <Cpu size={24} />
+            </div>
+            <h4>Google Gemini AI</h4>
+            <p>
+              Advanced generative model integrations utilizing Google AI Studio credentials for conceptual document answers and high-fidelity embed mappings.
+            </p>
+            <div className="tech-tag-container">
+              <span className="tech-tag">gemini-2.5-flash</span>
+              <span className="tech-tag">gemini-embedding-001</span>
+              <span className="tech-tag">LangChain</span>
+            </div>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon color-emerald">
+              <Database size={24} />
+            </div>
+            <h4>ChromaDB & BM25</h4>
+            <p>
+              Enables dual retrieval tracks. Stores vectorized document embeddings in isolated persistent collections alongside statistical lexical search indexes.
+            </p>
+            <div className="tech-tag-container">
+              <span className="tech-tag">ChromaDB</span>
+              <span className="tech-tag">Rank-BM25</span>
+              <span className="tech-tag">EnsembleRetriever</span>
+            </div>
+          </div>
+
+          <div className="card-item">
+            <div className="card-header-icon">
+              <HardDrive size={24} />
+            </div>
+            <h4>Upstash Redis</h4>
+            <p>
+              Serverless, secure TLS-bound database managing fast deterministic caching, sliding window client-IP limits, and thread chat list memories.
+            </p>
+            <div className="tech-tag-container">
+              <span className="tech-tag">Upstash Serverless</span>
+              <span className="tech-tag">Redis Lists</span>
+              <span className="tech-tag">Rate Limiting</span>
+              <span className="tech-tag">Response Cache</span>
+            </div>
+          </div>
+        </div>
+
+        <footer className="home-footer">
+          <p>
+            DocuMind RAG Project | Designed and Developed by{" "}
+            <a
+              href="https://www.linkedin.com/in/ramandeep-singh-3b6560249/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ramandeep Singh
+            </a>
+          </p>
+          <p style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>
+            Source code licensed under MIT. View on{" "}
+            <a
+              href="https://github.com/Devilcoder2/DocuMind"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            .
+          </p>
+        </footer>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
